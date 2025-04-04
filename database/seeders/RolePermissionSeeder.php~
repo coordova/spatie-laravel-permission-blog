@@ -43,13 +43,8 @@ class RolePermissionSeeder extends Seeder
         $viewerRole = Role::firstOrCreate(['name' => 'Viewer']);
 
         // 5. Asignar TODOS los permisos al Admin (forma explícita)
-        // Admin: Tiene todos los permisos (implícito o explícito)
-        // No es necesario asignar todos si usas Gate::before (ver config/auth.php)
-        // pero para claridad, podemos asignarlos:
         $allPermissions = Permission::pluck('name')->toArray(); // Obtiene todos los nombres de permisos
         $adminRole->syncPermissions($allPermissions); // syncPermissions quita los no listados y añade los nuevos
-        // O alternativamente, si configuras un Gate::before para admins, no necesitas esto.
-
 
         // 6. Asignar permisos específicos a otros roles usando syncPermissions
         $editorRole->syncPermissions([
@@ -66,7 +61,7 @@ class RolePermissionSeeder extends Seeder
 
         $writerRole->syncPermissions([
             'posts.create',
-            'posts.view', // Puede ver todos, pero solo editar los suyos
+            'posts.view',
             'posts.edit.own',
             'comments.create',     // Nuevo
             'comments.edit.own',   // Nuevo
