@@ -7,14 +7,6 @@ use Illuminate\Http\Request;
 
 class CategoryController extends Controller
 {
-    // Aplica middleware de autorización a todos los métodos del resource
-    public function __construct()
-    {
-        // Esto usa los métodos de CategoryPolicy automáticamente
-//        $this->authorizeResource(Category::class, 'category');
-        $this->middleware('auth');
-    }
-
     /**
      * Display a listing of the resource.
      */
