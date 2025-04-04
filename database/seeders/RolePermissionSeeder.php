@@ -74,7 +74,7 @@ class RolePermissionSeeder extends Seeder
         ]);
 
         $this->command->info('Roles y permisos (incluyendo nuevos) creados y asignados correctamente.');
-        // No olvides llamar a UserSeeder si lo tienes para crear usuarios con roles
+        // No olvides llamar a UserSeeder si lo tienes para crear usuarios con roles - desde el DatabaseSeeder.php
         // $this->call(UserSeeder::class);
     }
 }
