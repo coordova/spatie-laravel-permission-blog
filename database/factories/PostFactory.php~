@@ -13,8 +13,6 @@ use Illuminate\Database\Eloquent\Factories\Factory;
  */
 class PostFactory extends Factory
 {
-    protected $model = Post::class;
-
     /**
      * Define the model's default state.
      *
@@ -22,6 +20,13 @@ class PostFactory extends Factory
      */
     public function definition(): array
     {
+        /*return [
+            'title' => fake()->sentence(),
+            'content' => fake()->paragraph(),
+            'is_published' => fake()->boolean(),
+            'user_id' => UserFactory::new(),
+//            'category_id' => CategoryFactory::new(),
+        ];*/
 
         return [
             // Asignar un usuario existente aleatorio como autor
