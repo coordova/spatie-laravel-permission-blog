@@ -22,7 +22,7 @@ class DatabaseSeeder extends Seeder
         ]);*/
 
         // crear tags
-//        Tag::factory(10)->create();
+        Tag::factory(10)->create();
 
         $this->call([
             RolePermissionSeeder::class,

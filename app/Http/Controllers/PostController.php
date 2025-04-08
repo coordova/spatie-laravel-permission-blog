@@ -2,8 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Category;
 use App\Models\Post;
+use App\Models\Tag;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class PostController extends Controller
 {
@@ -20,7 +23,14 @@ class PostController extends Controller
      */
     public function create()
     {
-        //
+        // Autorizar creación usando PostPolicy
+        $this->authorize('create', Post::class);
+
+        // Pasar categorías y tags a la vista para los selectores
+        $categories = Category::orderBy('name')->get();
+        $tags = Tag::orderBy('name')->get();
+
+        return view('posts.create', compact('categories', 'tags')); // Necesitarás crear/actualizar esta vista
     }
 
     /**
@@ -28,7 +38,40 @@ class PostController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        // Autorizar creación
+        $this->authorize('create', Post::class);
+
+        $validated = $request->validate([
+            'title' => 'required|string|max:255',
+            'content' => 'required|string',
+            'is_published' => 'nullable|boolean', // Si tienes un checkbox para publicar al crear
+            'categories' => 'nullable|array',     // Debe ser un array (de IDs)
+            'categories.*' => 'exists:categories,id', // Cada ID debe existir en la tabla categories
+            'tags' => 'nullable|array',
+            'tags.*' => 'exists:tags,id',
+        ]);
+
+        // Crear el post asociando el usuario
+        $post = Auth::user()->posts()->create([
+            'title' => $validated['title'],
+            'content' => $validated['content'],
+            'is_published' => $request->boolean('is_published'), // Obtener valor booleano
+        ]);
+
+        // Sincronizar categorías y tags (sync maneja añadir/quitar)
+        if ($request->has('categories')) {
+            $post->categories()->sync($validated['categories']);
+        } else {
+            $post->categories()->sync([]); // Desasociar todas si no se envía nada
+        }
+        if ($request->has('tags')) {
+            $post->tags()->sync($validated['tags']);
+        } else {
+            $post->tags()->sync([]);
+        }
+
+
+        return redirect()->route('posts.show', $post)->with('success', 'Post creado.');
     }
 
     /**
@@ -36,7 +79,16 @@ class PostController extends Controller
      */
     public function show(Post $post)
     {
-        //
+        // Cargar relaciones para mostrar en la vista
+        $post->load(['user', 'categories', 'tags', 'comments.user']);
+
+        // Lógica de autorización para ver el post (podría estar en Policy@view)
+        // Ejemplo simple: si no está publicado, solo lo ve quien puede ver 'posts.view' o el autor
+        if (!$post->is_published && (!Auth::check() || !Auth::user()->can('posts.view') && Auth::id() !== $post->user_id) ) {
+            abort(404); // O 403 si prefieres indicar que existe pero no tiene acceso
+        }
+
+        return view('posts.show', compact('post'));
     }
 
     /**
@@ -44,7 +96,17 @@ class PostController extends Controller
      */
     public function edit(Post $post)
     {
-        //
+        // Autorizar usando PostPolicy@update
+        $this->authorize('update', $post);
+
+        $categories = Category::orderBy('name')->get();
+        $tags = Tag::orderBy('name')->get();
+        // Obtener IDs de las categorías/tags ya asociados para preseleccionar en el form
+        $postCategoryIds = $post->categories->pluck('id')->toArray();
+        $postTagIds = $post->tags->pluck('id')->toArray();
+
+
+        return view('posts.edit', compact('post', 'categories', 'tags', 'postCategoryIds', 'postTagIds')); // Necesitarás crear/actualizar esta vista
     }
 
     /**
@@ -52,7 +114,30 @@ class PostController extends Controller
      */
     public function update(Request $request, Post $post)
     {
-        //
+        // Autorizar usando PostPolicy@update
+        $this->authorize('update', $post);
+
+        $validated = $request->validate([
+            'title' => 'required|string|max:255',
+            'content' => 'required|string',
+            'is_published' => 'nullable|boolean',
+            'categories' => 'nullable|array',
+            'categories.*' => 'exists:categories,id',
+            'tags' => 'nullable|array',
+            'tags.*' => 'exists:tags,id',
+        ]);
+
+        $post->update([
+            'title' => $validated['title'],
+            'content' => $validated['content'],
+            'is_published' => $request->boolean('is_published'),
+        ]);
+
+        // Sincronizar categorías y tags
+        $post->categories()->sync($request->input('categories', [])); // Usar array vacío si no viene
+        $post->tags()->sync($request->input('tags', []));
+
+        return redirect()->route('posts.show', $post)->with('success', 'Post actualizado.');
     }
 
     /**
@@ -60,6 +145,48 @@ class PostController extends Controller
      */
     public function destroy(Post $post)
     {
-        //
+        // Autorizar usando PostPolicy@delete
+        $this->authorize('delete', $post);
+
+        $post->delete(); // Asegúrate que las relaciones tengan cascadeOnDelete si es necesario
+
+        // Decidir a dónde redirigir (ej: al índice de administración)
+        return redirect()->route('posts.index.all')->with('success', 'Post eliminado.'); // Asumiendo que tienes esta ruta
+    }
+
+    // Método para publicar/despublicar (si lo tienes)
+    public function publish(Post $post)
+    {
+        // Autorizar usando PostPolicy@publish (si lo definiste) o permiso directo
+        if (!Auth::user()->can('posts.publish')) { // O $this->authorize('publish', $post); si existe en Policy
+            abort(403);
+        }
+
+        $post->update(['is_published' => !$post->is_published]);
+
+        return back()->with('success', 'Estado de publicación cambiado.');
+    }
+
+    // Método para mostrar todos los posts (vista admin)
+    public function indexAll()
+    {
+        // Asegúrate de proteger esta ruta con el permiso 'posts.view'
+        if (!Auth::user()->can('posts.view')) {
+            abort(403);
+        }
+        $posts = Post::with('user')->latest()->paginate(15); // Carga el autor
+        return view('admin.posts.index', compact('posts')); // Vista de administración de posts
+    }
+
+    // Método para mostrar posts publicados (vista pública)
+    public function indexPublished()
+    {
+        // Asegúrate de proteger esta ruta con 'posts.view.published'
+        /*if (!Auth::user()->can('posts.view.published')) {
+            // O quizás permitir acceso público no autenticado si es un blog público
+            // En ese caso, la comprobación de permiso se haría en la vista para acciones
+        }*/
+        $posts = Post::where('is_published', true)->with('user', 'categories', 'tags')->latest()->paginate(10);
+        return view('posts.index', compact('posts')); // Vista pública de posts
     }
 }

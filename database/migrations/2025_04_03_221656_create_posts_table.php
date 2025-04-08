@@ -18,6 +18,8 @@ return new class extends Migration
             // constrained() asume que la tabla es 'users' y la columna 'id'
             // cascadeOnDelete() elimina los posts si se elimina el usuario autor
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
+            // Foreign key para la categoría (Category)
+//            $table->foreignId('category_id')->constrained()->cascadeOnDelete();
 
             $table->string('title'); // Título del post
             $table->longText('content'); // Contenido del post (longText para textos largos)

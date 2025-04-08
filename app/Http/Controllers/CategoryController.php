@@ -12,7 +12,7 @@ class CategoryController extends Controller
     {
         // Esto usa los métodos de CategoryPolicy automáticamente
 //        $this->authorizeResource(Category::class, 'category');
-        $this->middleware('auth');
+//        $this->middleware('auth');
     }
 
     /**
@@ -20,7 +20,8 @@ class CategoryController extends Controller
      */
     public function index()
     {
-        //
+        $categories = Category::latest()->paginate(10);
+        return view('admin.categories.index', compact('categories')); // Necesitarás crear esta vista
     }
 
     /**
@@ -28,7 +29,7 @@ class CategoryController extends Controller
      */
     public function create()
     {
-        //
+        return view('admin.categories.create'); // Necesitarás crear esta vista
     }
 
     /**
@@ -36,7 +37,14 @@ class CategoryController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $validated = $request->validate([
+            'name' => 'required|string|max:255|unique:categories,name',
+        ]);
+        // El slug se genera automáticamente por el mutador en el Modelo
+
+        Category::create($validated);
+
+        return redirect()->route('admin.categories.index')->with('success', 'Categoría creada.');
     }
 
     /**
@@ -52,7 +60,7 @@ class CategoryController extends Controller
      */
     public function edit(Category $category)
     {
-        //
+        return view('admin.categories.edit', compact('category')); // Necesitarás crear esta vista
     }
 
     /**
@@ -60,7 +68,15 @@ class CategoryController extends Controller
      */
     public function update(Request $request, Category $category)
     {
-        //
+        $validated = $request->validate([
+            // Asegúrate de ignorar el registro actual al validar unicidad
+            'name' => 'required|string|max:255|unique:categories,name,' . $category->id,
+        ]);
+        // El slug se actualiza automáticamente por el mutador
+
+        $category->update($validated);
+
+        return redirect()->route('admin.categories.index')->with('success', 'Categoría actualizada.');
     }
 
     /**
@@ -68,6 +84,7 @@ class CategoryController extends Controller
      */
     public function destroy(Category $category)
     {
-        //
+        $category->delete();
+        return redirect()->route('admin.categories.index')->with('success', 'Categoría eliminada.');
     }
 }
