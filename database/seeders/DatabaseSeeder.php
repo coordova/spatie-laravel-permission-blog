@@ -28,6 +28,7 @@ class DatabaseSeeder extends Seeder
             RolePermissionSeeder::class,
             // Aquí puedes añadir otros seeders, como UserSeeder
             PostSeeder::class,
+            CategorySeeder::class
         ]);
     }
 }

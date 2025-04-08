@@ -13,6 +13,17 @@ class CategorySeeder extends Seeder
      */
     public function run(): void
     {
-        Category::factory(1)->create();
+        $count = 15; // ¿Cuántas categorías quieres crear?
+        $this->command->info("Creando {$count} categorías de ejemplo...");
+
+        // Opcional: Crear algunas categorías específicas primero
+        // Category::firstOrCreate(['name' => 'Tecnología', 'slug' => 'tecnologia']);
+        // Category::firstOrCreate(['name' => 'Tutoriales', 'slug' => 'tutoriales']);
+        // Category::firstOrCreate(['name' => 'Noticias', 'slug' => 'noticias']);
+
+        // Crear el resto con la factory
+        Category::factory($count)->create();
+
+        $this->command->info("Seeder de Categorías completado.");
     }
 }
