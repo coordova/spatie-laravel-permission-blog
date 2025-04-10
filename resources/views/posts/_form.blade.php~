@@ -69,4 +69,4 @@
 <button type="submit" class="btn btn-primary">
     {{ isset($post) ? 'Actualizar Post' : 'Crear Post' }}
 </button>
-<a href="{{ isset($post) ? route('posts.show', $post) : route('admin.posts.index') }}" class="btn btn-secondary">Cancelar</a>
+<a href="{{ isset($post) ? route('posts.show', $post) : route('home') }}" class="btn btn-secondary">Cancelar</a>

@@ -24,7 +24,7 @@ class PostController extends Controller
     public function create()
     {
         // Autorizar creación usando PostPolicy
-        $this->authorize('create', Post::class);
+//        $this->authorize('create', Post::class);
 
         // Pasar categorías y tags a la vista para los selectores
         $categories = Category::orderBy('name')->get();
@@ -39,7 +39,7 @@ class PostController extends Controller
     public function store(Request $request)
     {
         // Autorizar creación
-        $this->authorize('create', Post::class);
+//        $this->authorize('create', Post::class);
 
         $validated = $request->validate([
             'title' => 'required|string|max:255',
@@ -97,7 +97,7 @@ class PostController extends Controller
     public function edit(Post $post)
     {
         // Autorizar usando PostPolicy@update
-        $this->authorize('update', $post);
+//        $this->authorize('update', $post);
 
         $categories = Category::orderBy('name')->get();
         $tags = Tag::orderBy('name')->get();
@@ -115,7 +115,7 @@ class PostController extends Controller
     public function update(Request $request, Post $post)
     {
         // Autorizar usando PostPolicy@update
-        $this->authorize('update', $post);
+//        $this->authorize('update', $post);
 
         $validated = $request->validate([
             'title' => 'required|string|max:255',
@@ -146,12 +146,12 @@ class PostController extends Controller
     public function destroy(Post $post)
     {
         // Autorizar usando PostPolicy@delete
-        $this->authorize('delete', $post);
+//        $this->authorize('delete', $post);
 
         $post->delete(); // Asegúrate que las relaciones tengan cascadeOnDelete si es necesario
 
         // Decidir a dónde redirigir (ej: al índice de administración)
-        return redirect()->route('posts.index.all')->with('success', 'Post eliminado.'); // Asumiendo que tienes esta ruta
+        return redirect()->route('admin.posts.index')->with('success', 'Post eliminado.'); // Asumiendo que tienes esta ruta
     }
 
     // Método para publicar/despublicar (si lo tienes)
