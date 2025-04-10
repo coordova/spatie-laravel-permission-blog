@@ -174,7 +174,7 @@ class PostController extends Controller
         if (!Auth::user()->can('posts.view')) {
             abort(403);
         }
-        $posts = Post::with('user', 'categories', 'tags')->latest()->paginate(15); // Carga el autor
+        $posts = Post::with('user')->latest()->paginate(15); // Carga el autor
         return view('admin.posts.index', compact('posts')); // Vista de administración de posts
     }
 
