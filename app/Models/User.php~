@@ -58,10 +58,4 @@ class User extends Authenticatable
     {
         return $this->hasMany(Comment::class);
     }
-
-    // relacion con la tabla de actividades
-    public function activities()
-    {
-        return $this->hasMany(Activity::class);
-    }
 }

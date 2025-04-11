@@ -5,9 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+use App\Traits\RecordsActivity;
+
 class Post extends Model
 {
-    use HasFactory;
+    use HasFactory, RecordsActivity;
 
     // Asegúrate de tener 'user_id' y 'is_published' si los usas
     protected $fillable = [

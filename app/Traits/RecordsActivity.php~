@@ -22,9 +22,9 @@ trait RecordsActivity
             $model->recordActivity('deleted');
         });
 
-        /*static::restored(function ($model) {
+        static::restored(function ($model) {
             $model->recordActivity('restored');
-        });*/
+        });
     }
 
     protected function recordActivity($event, $changes = null)
