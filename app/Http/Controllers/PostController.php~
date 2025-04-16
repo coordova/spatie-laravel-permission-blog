@@ -151,7 +151,7 @@ class PostController extends Controller
         $post->delete(); // Asegúrate que las relaciones tengan cascadeOnDelete si es necesario
 
         // Decidir a dónde redirigir (ej: al índice de administración)
-        return redirect()->route('posts.index.all')->with('success', 'Post eliminado.'); // Asumiendo que tienes esta ruta
+        return redirect()->route('admin.posts.index')->with('success', 'Post eliminado.'); // Asumiendo que tienes esta ruta
     }
 
     // Método para publicar/despublicar (si lo tienes)
@@ -187,6 +187,7 @@ class PostController extends Controller
             // En ese caso, la comprobación de permiso se haría en la vista para acciones
         }*/
         $posts = Post::where('is_published', true)->with('user', 'categories', 'tags')->latest()->paginate(10);
+        dd($posts);
         return view('posts.index', compact('posts')); // Vista pública de posts
     }
 }
