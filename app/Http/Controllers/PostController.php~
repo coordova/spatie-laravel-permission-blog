@@ -187,7 +187,7 @@ class PostController extends Controller
             // En ese caso, la comprobación de permiso se haría en la vista para acciones
         }*/
         $posts = Post::where('is_published', true)->with('user', 'categories', 'tags')->latest()->paginate(10);
-        dd($posts);
+        dd($posts); 
         return view('posts.index', compact('posts')); // Vista pública de posts
     }
 }
