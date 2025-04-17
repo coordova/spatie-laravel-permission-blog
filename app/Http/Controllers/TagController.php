@@ -53,7 +53,7 @@ class TagController extends Controller
      */
     public function edit(Tag $tag)
     {
-        //
+        return view('admin.tags.edit', compact('tag')); // Necesitarás crear esta vista
     }
 
     /**
@@ -61,7 +61,11 @@ class TagController extends Controller
      */
     public function update(Request $request, Tag $tag)
     {
-        //
+        $validated = $request->validate([
+            'name' => 'required|string|max:255|unique:tags,name,' . $tag->id,
+        ]);
+        $tag->update($validated);
+        return redirect()->route('admin.tags.index')->with('success', 'Tag actualizado.');
     }
 
     /**
