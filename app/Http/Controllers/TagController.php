@@ -9,7 +9,7 @@ class TagController extends Controller
 {
     public function __construct()
     {
-        $this->authorizeResource(Tag::class, 'tag');
+//        $this->authorizeResource(Tag::class, 'tag');
     }
     /**
      * Display a listing of the resource.
@@ -73,6 +73,7 @@ class TagController extends Controller
      */
     public function destroy(Tag $tag)
     {
-        //
+        $tag->delete();
+        return redirect()->route('admin.tags.index')->with('success', 'Tag eliminado.');
     }
 }
