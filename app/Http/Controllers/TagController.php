@@ -7,12 +7,17 @@ use Illuminate\Http\Request;
 
 class TagController extends Controller
 {
+    public function __construct()
+    {
+        $this->authorizeResource(Tag::class, 'tag');
+    }
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        //
+        $tags = Tag::latest()->paginate(10);
+        return view('admin.tags.index', compact('tags')); // Necesitarás crear esta vista
     }
 
     /**
