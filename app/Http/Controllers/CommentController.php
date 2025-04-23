@@ -63,6 +63,7 @@ class CommentController extends Controller
     // Eliminar un comentario
     public function destroy(Comment $comment)
     {
+        dd($comment);
         // Verifica usando CommentPolicy@delete
 //        $this->authorize('delete', $comment);
 
